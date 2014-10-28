@@ -1,9 +1,9 @@
 haveapi Plugin for DokuWiki
 
-Very Description
+Authenticate using any HaveAPI based API
 
 All documentation for this plugin can be found at
-http://very-url
+https://github.com/vpsfreecz/haveapi-dokuwiki
 
 If you install this plugin manually, make sure it is installed in
 lib/plugins/haveapi/ - if the folder is called different it

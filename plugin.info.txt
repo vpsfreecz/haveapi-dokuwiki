@@ -2,6 +2,6 @@ base   haveapi
 author Jakub Skokan
 email  aither@havefun.cz
 date   2014-10-28
-name   Authentication using HaveAPI
-desc   Very Description
-url    http://very-url
+name   HaveAPI authentication
+desc   Authenticate using any HaveAPI based API
+url    https://github.com/vpsfreecz/haveapi-dokuwiki
