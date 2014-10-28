@@ -13,3 +13,6 @@ $meta['user_resource'] = array('string');
 $meta['user_current_action'] = array('string');
 $meta['user_name'] = array('string');
 $meta['user_mail'] = array('string');
+$meta['grp_admin_param']     = array('string');
+$meta['grp_admin_param_cmp'] = array('multichoice', '_choices' => array('<', '<=', '==', '!=', '>=', '>'));
+$meta['grp_admin_cmp_with']  = array('string');

@@ -115,7 +115,7 @@ class auth_plugin_haveapi extends DokuWiki_Auth_Plugin {
                     $USERINFO['mail'] = $reply->{$this->getConf('user_mail')};
                     $USERINFO['grps'] = array();
                     
-                    if ($reply->level >= 21)
+                    if ($this->_isAdmin($reply->{$this->getConf('grp_admin_param')}))
                         $USERINFO['grps'][] = 'admin';
                     
                 } else {
@@ -334,6 +334,27 @@ class auth_plugin_haveapi extends DokuWiki_Auth_Plugin {
     //public function useSessionCache($user) {
       // FIXME implement
     //}
+    
+    private function _isAdmin($lvl) {
+        $v = $this->getConf('grp_admin_cmp_with');
+        
+        switch ($this->getConf('grp_admin_param_cmp')) {
+            case '<':
+                return $lvl < $v;
+            case '<=':
+                return $lvl <= $v;
+            case '==':
+                return $lvl == $v;
+            case '!=':
+                return $lvl != $v;
+            case '>=':
+                return $lvl >= $v;
+            case '>':
+                return $lvl > $v;
+            default:
+                return false;
+        }
+    }
 }
 
 // vim:ts=4:sw=4:et:
