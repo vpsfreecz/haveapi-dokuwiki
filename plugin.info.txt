@@ -1,0 +1,7 @@
+base   haveapi
+author Jakub Skokan
+email  aitehr@havefun.cz
+date   2014-10-28
+name   Authentication using HaveAPI
+desc   Very Description
+url    http://very-url
