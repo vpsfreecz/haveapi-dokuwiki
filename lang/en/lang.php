@@ -2,7 +2,7 @@
 /**
  * English language file for haveapi plugin
  *
- * @author Very Name <very@mail>
+ * @author Jakub Skokan <aither@havefun.cz>
  */
 
 // menu entry for admin plugins

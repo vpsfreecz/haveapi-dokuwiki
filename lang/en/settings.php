@@ -2,7 +2,7 @@
 /**
  * english language file for haveapi plugin
  *
- * @author Very Name <very@mail>
+ * @author Jakub Skokan <aither@havefun.cz>
  */
 
 // keys need to match the config setting name

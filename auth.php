@@ -36,6 +36,10 @@ class auth_plugin_haveapi extends DokuWiki_Auth_Plugin {
         //$this->cando['getGroups']   = false; // can a list of available groups be retrieved?
         $this->cando['external']    = true; // does the module do external auth checking?
         $this->cando['logout']      = true; // can the user logout again? (eg. not possible with HTTP auth)
+        
+//         if ($this->getConf('user_resource')) {
+//             $this->cando['getUsers'] = true;
+//         }
 
         $this->api = new \HaveAPI\Client($this->getConf('api_url'), $this->getConf('api_version'), $this->getConf('client_identity'));
         
@@ -78,7 +82,7 @@ class auth_plugin_haveapi extends DokuWiki_Auth_Plugin {
         // user not provided
         if (empty($user)) {
             if (!empty($_SESSION[DOKU_COOKIE]['auth']['info'])) {
-                $USERINFO['name'] = $_SESSION[DOKU_COOKIE]['auth']['info']['user'];
+                $USERINFO['name'] = $_SESSION[DOKU_COOKIE]['auth']['info']['name'];
                 $USERINFO['mail'] = $_SESSION[DOKU_COOKIE]['auth']['info']['mail'];
                 $USERINFO['grps'] = $_SESSION[DOKU_COOKIE]['auth']['info']['grps'];
                 $_SERVER['REMOTE_USER'] = $_SESSION[DOKU_COOKIE]['auth']['user'];
@@ -102,14 +106,27 @@ class auth_plugin_haveapi extends DokuWiki_Auth_Plugin {
                 
                 $this->api->authenticate('token', $params);
                 
+                $user_res = $this->getConf('user_resource');
                 
-                $USERINFO['name'] = "$user (FIXME)";
-                $USERINFO['mail'] = 'FIXME';
-                $USERINFO['grps'] = array('FIXME');
+                if ($user_res) {
+                    $reply = $this->api->{$user_res}->{$this->getConf('user_current_action')}->call();
+                    
+                    $USERINFO['name'] = $reply->{$this->getConf('user_name')};
+                    $USERINFO['mail'] = $reply->{$this->getConf('user_mail')};
+                    $USERINFO['grps'] = array();
+                    
+                    if ($reply->level >= 21)
+                        $USERINFO['grps'][] = 'admin';
+                    
+                } else {
+                    $USERINFO['name'] = $user;
+                    $USERINFO['mail'] = '';
+                    $USERINFO['grps'] = array();
+                }
+                
                 $_SERVER['REMOTE_USER'] = $user;
                 
                 $_SESSION[DOKU_COOKIE]['auth']['user'] = $user;
-                $_SESSION[DOKU_COOKIE]['auth']['pass'] = $pass;
                 $_SESSION[DOKU_COOKIE]['auth']['info'] = $USERINFO;
                 $_SESSION[DOKU_COOKIE]['auth']['haveapi_token'] = $this->api->getAuthenticationProvider()->getToken();
                 
