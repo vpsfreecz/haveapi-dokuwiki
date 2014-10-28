@@ -15,3 +15,4 @@ $conf['user_mail']           = 'email';
 $conf['grp_admin_param']     = 'level';
 $conf['grp_admin_param_cmp'] = '==';
 $conf['grp_admin_cmp_with']  = '';
+$conf['default_groups']      = 'user';

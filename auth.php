@@ -113,7 +113,7 @@ class auth_plugin_haveapi extends DokuWiki_Auth_Plugin {
                     
                     $USERINFO['name'] = $reply->{$this->getConf('user_name')};
                     $USERINFO['mail'] = $reply->{$this->getConf('user_mail')};
-                    $USERINFO['grps'] = array();
+                    $USERINFO['grps'] = explode(',', $this->getConf('default_groups'));
                     
                     if ($this->_isAdmin($reply->{$this->getConf('grp_admin_param')}))
                         $USERINFO['grps'][] = 'admin';
