@@ -5,7 +5,7 @@
  * @author Jakub Skokan <aither@havefun.cz>
  */
 
-$conf['api_url']             = 'http://192.168.122.11:4567';
+$conf['api_url']             = 'https://your.api.tld';
 $conf['api_version']         = null;
 $conf['client_identity']     = 'haveapi-dokuwiki';
 $conf['user_resource']       = null;
