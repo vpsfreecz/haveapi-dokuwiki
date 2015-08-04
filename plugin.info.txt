@@ -1,7 +1,7 @@
 base   haveapi
 author Jakub Skokan
-email  aither@havefun.cz
-date   2014-10-28
+email  jakub.skokan@vpsfree.cz
+date   2015-08-04
 name   HaveAPI authentication
 desc   Authenticate using any HaveAPI based API
 url    https://github.com/vpsfreecz/haveapi-dokuwiki

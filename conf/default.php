@@ -2,7 +2,7 @@
 /**
  * Default settings for the haveapi plugin
  *
- * @author Jakub Skokan <aither@havefun.cz>
+ * @author Jakub Skokan <jakub.skokan@vpsfree.cz>
  */
 
 $conf['api_url']             = 'https://your.api.tld';

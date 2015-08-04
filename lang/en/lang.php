@@ -2,7 +2,7 @@
 /**
  * English language file for haveapi plugin
  *
- * @author Jakub Skokan <aither@havefun.cz>
+ * @author Jakub Skokan <jakub.skokan@vpsfree.cz>
  */
 
 // menu entry for admin plugins

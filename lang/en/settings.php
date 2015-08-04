@@ -2,7 +2,7 @@
 /**
  * english language file for haveapi plugin
  *
- * @author Jakub Skokan <aither@havefun.cz>
+ * @author Jakub Skokan <jakub.skokan@vpsfree.cz>
  */
 
 // keys need to match the config setting name
