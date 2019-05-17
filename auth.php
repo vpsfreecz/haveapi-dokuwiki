@@ -78,7 +78,7 @@ class auth_plugin_haveapi extends DokuWiki_Auth_Plugin {
         global $USERINFO;
         global $conf;
         $sticky ? $sticky = true : $sticky = false; //sanity check
-        
+
         // user not provided
         if (empty($user)) {
             if (!empty($_SESSION[DOKU_COOKIE]['auth']['info'])) {
@@ -95,8 +95,11 @@ class auth_plugin_haveapi extends DokuWiki_Auth_Plugin {
         } else { // authenticate
             try {
                 $params = array(
-                    'username' => $user,
-                    'password' => $pass
+                    'user' => $user,
+                    'password' => $pass,
+                    'callback' => function ($action, $token, $params) {
+                        throw new HaveAPI\Client\Exception\ActionFailed(null, "Token request failed, 2FA required, but not supported");
+                    },
                 );
                 
                 if ($sticky) {

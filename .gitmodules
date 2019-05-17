@@ -1,6 +1,4 @@
-[submodule "haveapi-client-php"]
-	path = haveapi-client-php
-	url = git@git.vpsfree.cz:haveapi-client-php.git
 [submodule "vendor/haveapi-client-php"]
 	path = vendor/haveapi-client-php
 	url = git@git.vpsfree.cz:haveapi-client-php.git
+	ignore = dirty
