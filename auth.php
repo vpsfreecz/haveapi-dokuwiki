@@ -9,11 +9,11 @@
 // must be run within Dokuwiki
 if(!defined('DOKU_INC')) die();
 
-require_once DOKU_INC . 'lib/plugins/haveapi/vendor/httpful.phar';
-require_once DOKU_INC . 'lib/plugins/haveapi/vendor/haveapi-client-php/bootstrap.php';
+define('HAVEAPI_AUTH', 'haveapi_auth');
 
 class auth_plugin_haveapi extends DokuWiki_Auth_Plugin {
 
+    private $helper;
     private $api;
     private $token;
 
@@ -41,8 +41,9 @@ class auth_plugin_haveapi extends DokuWiki_Auth_Plugin {
 //             $this->cando['getUsers'] = true;
 //         }
 
-        $this->api = new \HaveAPI\Client($this->getConf('api_url'), $this->getConf('api_version'), $this->getConf('client_identity'));
 
+        $this->helper = $this->loadHelper('haveapi');
+        $this->api = $this->helper->getClient();
         $this->success = true;
     }
 
@@ -51,13 +52,18 @@ class auth_plugin_haveapi extends DokuWiki_Auth_Plugin {
      * Log off the current user [ OPTIONAL ]
      */
     public function logOff() {
+        $this->helper->resetAuthentication();
+
         if (!isset($_SESSION[DOKU_COOKIE]['auth']['haveapi_token']))
             return;
 
-        $this->api->authenticate('token', array('token' => $_SESSION[DOKU_COOKIE]['auth']['haveapi_token']));
+        $this->helper->getClient()->authenticate(
+            'token',
+            ['token' => $_SESSION[DOKU_COOKIE]['auth']['haveapi_token']]
+        );
 
         try {
-            $this->api->logout();
+            $this->helper->getClient()->logout();
 
         } catch (HaveAPI\Client\Exception\AuthenticationFailed $e) {
             // token is no longer valid, ignore
@@ -94,44 +100,24 @@ class auth_plugin_haveapi extends DokuWiki_Auth_Plugin {
 
         } else { // authenticate
             try {
-                $params = array(
+                $input = array(
                     'user' => $user,
                     'password' => $pass,
-                    'callback' => function ($action, $token, $params) {
-                        throw new HaveAPI\Client\Exception\ActionFailed(null, "Token request failed, 2FA required, but not supported");
-                    },
+                    'callback' => $this->helper->getAuthCallback($user),
                 );
 
                 if ($sticky) {
                     // token will be valid for 14 days from last activity
-                    $params['interval'] = 14*24*60*60;
+                    $input['interval'] = 14*24*60*60;
                 }
 
-                $this->api->authenticate('token', $params);
+                $this->helper->getClient()->authenticate('token', $input);
 
-                $user_res = $this->getConf('user_resource');
-
-                if ($user_res) {
-                    $reply = $this->api->{$user_res}->{$this->getConf('user_current_action')}->call();
-
-                    $USERINFO['name'] = $reply->{$this->getConf('user_name')};
-                    $USERINFO['mail'] = $reply->{$this->getConf('user_mail')};
-                    $USERINFO['grps'] = explode(',', $this->getConf('default_groups'));
-
-                    if ($this->_isAdmin($reply->{$this->getConf('grp_admin_param')}))
-                        $USERINFO['grps'][] = 'admin';
-
+                if (isset($_SESSION[DOKU_COOKIE][HAVEAPI_AUTH])) {
+                    $this->interimLogin($user);
                 } else {
-                    $USERINFO['name'] = $user;
-                    $USERINFO['mail'] = '';
-                    $USERINFO['grps'] = array();
+                    $this->helper->loginUser($user);
                 }
-
-                $_SERVER['REMOTE_USER'] = $user;
-
-                $_SESSION[DOKU_COOKIE]['auth']['user'] = $user;
-                $_SESSION[DOKU_COOKIE]['auth']['info'] = $USERINFO;
-                $_SESSION[DOKU_COOKIE]['auth']['haveapi_token'] = $this->api->getAuthenticationProvider()->getToken();
 
             } catch (HaveAPI\Client\Exception\ActionFailed $e) {
                 return false;
@@ -338,25 +324,15 @@ class auth_plugin_haveapi extends DokuWiki_Auth_Plugin {
       // FIXME implement
     //}
 
-    private function _isAdmin($lvl) {
-        $v = $this->getConf('grp_admin_cmp_with');
+    private function interimLogin($user) {
+        $USERINFO['name'] = $user;
+        $USERINFO['mail'] = '';
+        $USERINFO['grps'] = array();
 
-        switch ($this->getConf('grp_admin_param_cmp')) {
-            case '<':
-                return $lvl < $v;
-            case '<=':
-                return $lvl <= $v;
-            case '==':
-                return $lvl == $v;
-            case '!=':
-                return $lvl != $v;
-            case '>=':
-                return $lvl >= $v;
-            case '>':
-                return $lvl > $v;
-            default:
-                return false;
-        }
+        $_SERVER['REMOTE_USER'] = $user;
+
+        $_SESSION[DOKU_COOKIE]['auth']['user'] = $user;
+        $_SESSION[DOKU_COOKIE]['auth']['info'] = $USERINFO;
     }
 }
 
