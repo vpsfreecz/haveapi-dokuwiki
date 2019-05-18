@@ -102,10 +102,11 @@ class action_plugin_haveapi extends DokuWiki_Action_Plugin {
 
         try {
             $input = [
-                'user' => $user,
-                'password' => $password,
                 'callback' => $this->getAuthCallback($user),
             ];
+
+            $input[$this->getConf('request_user')] = $user;
+            $input[$this->getConf('request_password')] = $password;
 
             if ($sticky) {
                 // token will be valid for 14 days from last activity
