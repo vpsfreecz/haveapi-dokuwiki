@@ -13,7 +13,7 @@ require_once DOKU_INC . 'lib/plugins/haveapi/vendor/httpful.phar';
 require_once DOKU_INC . 'lib/plugins/haveapi/vendor/haveapi-client-php/bootstrap.php';
 
 class auth_plugin_haveapi extends DokuWiki_Auth_Plugin {
-    
+
     private $api;
     private $token;
 
@@ -36,13 +36,13 @@ class auth_plugin_haveapi extends DokuWiki_Auth_Plugin {
         //$this->cando['getGroups']   = false; // can a list of available groups be retrieved?
         $this->cando['external']    = true; // does the module do external auth checking?
         $this->cando['logout']      = true; // can the user logout again? (eg. not possible with HTTP auth)
-        
+
 //         if ($this->getConf('user_resource')) {
 //             $this->cando['getUsers'] = true;
 //         }
 
         $this->api = new \HaveAPI\Client($this->getConf('api_url'), $this->getConf('api_version'), $this->getConf('client_identity'));
-        
+
         $this->success = true;
     }
 
@@ -53,16 +53,16 @@ class auth_plugin_haveapi extends DokuWiki_Auth_Plugin {
     public function logOff() {
         if (!isset($_SESSION[DOKU_COOKIE]['auth']['haveapi_token']))
             return;
-        
+
         $this->api->authenticate('token', array('token' => $_SESSION[DOKU_COOKIE]['auth']['haveapi_token']));
-        
+
         try {
             $this->api->logout();
-            
+
         } catch (HaveAPI\Client\Exception\AuthenticationFailed $e) {
             // token is no longer valid, ignore
         }
-        
+
         unset($_SESSION[DOKU_COOKIE]['auth']['haveapi_token']);
     }
 
@@ -86,12 +86,12 @@ class auth_plugin_haveapi extends DokuWiki_Auth_Plugin {
                 $USERINFO['mail'] = $_SESSION[DOKU_COOKIE]['auth']['info']['mail'];
                 $USERINFO['grps'] = $_SESSION[DOKU_COOKIE]['auth']['info']['grps'];
                 $_SERVER['REMOTE_USER'] = $_SESSION[DOKU_COOKIE]['auth']['user'];
-                
+
                 return true;
             }
-        
+
             return false;
-            
+
         } else { // authenticate
             try {
                 $params = array(
@@ -101,42 +101,42 @@ class auth_plugin_haveapi extends DokuWiki_Auth_Plugin {
                         throw new HaveAPI\Client\Exception\ActionFailed(null, "Token request failed, 2FA required, but not supported");
                     },
                 );
-                
+
                 if ($sticky) {
                     // token will be valid for 14 days from last activity
                     $params['interval'] = 14*24*60*60;
                 }
-                
+
                 $this->api->authenticate('token', $params);
-                
+
                 $user_res = $this->getConf('user_resource');
-                
+
                 if ($user_res) {
                     $reply = $this->api->{$user_res}->{$this->getConf('user_current_action')}->call();
-                    
+
                     $USERINFO['name'] = $reply->{$this->getConf('user_name')};
                     $USERINFO['mail'] = $reply->{$this->getConf('user_mail')};
                     $USERINFO['grps'] = explode(',', $this->getConf('default_groups'));
-                    
+
                     if ($this->_isAdmin($reply->{$this->getConf('grp_admin_param')}))
                         $USERINFO['grps'][] = 'admin';
-                    
+
                 } else {
                     $USERINFO['name'] = $user;
                     $USERINFO['mail'] = '';
                     $USERINFO['grps'] = array();
                 }
-                
+
                 $_SERVER['REMOTE_USER'] = $user;
-                
+
                 $_SESSION[DOKU_COOKIE]['auth']['user'] = $user;
                 $_SESSION[DOKU_COOKIE]['auth']['info'] = $USERINFO;
                 $_SESSION[DOKU_COOKIE]['auth']['haveapi_token'] = $this->api->getAuthenticationProvider()->getToken();
-                
+
             } catch (HaveAPI\Client\Exception\ActionFailed $e) {
                 return false;
             }
-            
+
             return true;
         }
     }
@@ -337,10 +337,10 @@ class auth_plugin_haveapi extends DokuWiki_Auth_Plugin {
     //public function useSessionCache($user) {
       // FIXME implement
     //}
-    
+
     private function _isAdmin($lvl) {
         $v = $this->getConf('grp_admin_cmp_with');
-        
+
         switch ($this->getConf('grp_admin_param_cmp')) {
             case '<':
                 return $lvl < $v;
