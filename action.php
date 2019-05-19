@@ -115,12 +115,14 @@ class action_plugin_haveapi extends DokuWiki_Action_Plugin {
 
             $this->getClient()->authenticate('token', $input);
 
-            if ($this->isAuthenticationOpen()) {
+            if ($this->isAuthenticationComplete()) {
+                $this->loginUser($user);
+                return true;
+            } elseif ($this->isAuthenticationOpen()) {
                 session_write_close();
                 send_redirect(wl($ID, ['do' => 'haveapi_auth'], true, '&'));
             } else {
-                $this->loginUser($user);
-                return true;
+                throw new Exception("programming error");
             }
 
         } catch (HaveAPI\Client\Exception\ActionFailed $e) {
@@ -190,8 +192,7 @@ class action_plugin_haveapi extends DokuWiki_Action_Plugin {
      * @return boolean
      */
     private function isAuthenticationComplete() {
-        return !$this->isAuthenticationOpen()
-               || !$_SESSION[DOKU_COOKIE][HAVEAPI_AUTH]['auth_open'];
+        return $this->getClient()->getAuthenticationProvider()->isComplete();
     }
 
     /**
@@ -206,8 +207,6 @@ class action_plugin_haveapi extends DokuWiki_Action_Plugin {
         foreach ($conf['credentials'] as $name) {
             $input[$name] = $INPUT->post->str($name);
         }
-
-        $step = $conf['step'];
 
         try {
             $this->getClient()->authenticate(
@@ -226,7 +225,7 @@ class action_plugin_haveapi extends DokuWiki_Action_Plugin {
             return;
         }
 
-        if ($conf['step'] == $step) {
+        if ($this->isAuthenticationComplete()) {
             session_start();
             $this->loginUser($conf['user']);
             session_write_close();
@@ -274,18 +273,12 @@ class action_plugin_haveapi extends DokuWiki_Action_Plugin {
      */
     private function getAuthCallback($user) {
         return function ($action, $token, $params) use ($user) {
-            if (isset($_SESSION[DOKU_COOKIE][HAVEAPI_AUTH]))
-                $step = $_SESSION[DOKU_COOKIE][HAVEAPI_AUTH]['step'] + 1;
-            else
-                $step = 0;
-
             $_SESSION[DOKU_COOKIE][HAVEAPI_AUTH] = [
                 'user' => $user,
                 'auth_open' => true,
                 'next_action' => $action,
                 'auth_token' => $token,
                 'credentials' => $params,
-                'step' => $step,
             ];
             return 'stop';
         };
