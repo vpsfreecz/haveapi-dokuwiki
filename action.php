@@ -2,9 +2,9 @@
 /**
  * DokuWiki Plugin haveapi (Action Component)
  *
- * The plugin listens for event AUTH_LOGIN_CHECK and hijacks it. Do not set
- * any auth backend. The user credentials are used to request token from
- * the HaveAPI based API. If the authentication requires multiple steps,
+ * The plugin listens for event AUTH_LOGIN_CHECK and hijacks it. Se the
+ * authtype to haveapi as well. The user credentials are used to request token
+ * from the HaveAPI based API. If the authentication requires multiple steps,
  * the user is redirected to additional form pages.
  *
  * @license GPL 2 http://www.gnu.org/licenses/gpl-2.0.html
