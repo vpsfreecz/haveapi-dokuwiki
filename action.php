@@ -204,7 +204,7 @@ class action_plugin_haveapi extends DokuWiki_Action_Plugin {
         $conf = $this->getAuthConf();
         $input = [];
 
-        foreach ($conf['credentials'] as $name) {
+        foreach ($conf['credentials'] as $name => $desc) {
             $input[$name] = $INPUT->post->str($name);
         }
 
@@ -243,11 +243,11 @@ class action_plugin_haveapi extends DokuWiki_Action_Plugin {
         $form = new Doku_Form(['id' => 'haveapi_auth']);
         $form->startFieldset($this->getLang('auth_form_title'));
 
-        foreach ($conf['credentials'] as $name) {
+        foreach ($conf['credentials'] as $name => $desc) {
             $form->addElement(form_makeTextField(
                 $name,
                 '',
-                $name,
+                $desc->label,
                 '',
                 'block',
                 ['size'=>'50', 'autocomplete'=>'off']
