@@ -229,7 +229,7 @@ class action_plugin_haveapi extends DokuWiki_Action_Plugin {
             session_start();
             $this->loginUser($conf['user']);
             session_write_close();
-            send_redirect(wl('start', ['do' => 'show'], true, '&'));
+            send_redirect(wl($conf['page_id'], ['do' => 'show'], true, '&'));
             return;
         }
     }
@@ -273,7 +273,15 @@ class action_plugin_haveapi extends DokuWiki_Action_Plugin {
      */
     private function getAuthCallback($user) {
         return function ($action, $token, $params) use ($user) {
+            global $INPUT;
+
+            if (isset($_SESSION[DOKU_COOKIE][HAVEAPI_AUTH]))
+                $page_id = $_SESSION[DOKU_COOKIE][HAVEAPI_AUTH]['page_id'];
+            else
+                $page_id = $INPUT->get->str('id');
+
             $_SESSION[DOKU_COOKIE][HAVEAPI_AUTH] = [
+                'page_id' => $page_id,
                 'user' => $user,
                 'auth_open' => true,
                 'next_action' => $action,
